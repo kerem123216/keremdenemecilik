@@ -130,17 +130,23 @@
             });
 
         function checkKey() {
-            const inputKey = document.getElementById('keyInput').value;
+            const inputKey = document.getElementById('keyInput').value.trim();
             const errorElement = document.getElementById('error');
             const resultsContainer = document.getElementById('resultsContainer');
             const loginContainer = document.getElementById('login');
 
-            if (validKeys.includes(inputKey)) {
+            if (inputKey === "") {
+                // Eğer key boşsa hata göster
+                errorElement.textContent = "Geçersiz anahtar. Lütfen tekrar deneyin.";
+                errorElement.style.display = 'block';
+            } else if (validKeys.includes(inputKey)) {
                 // Doğru anahtar, sonuçları göster
                 loginContainer.style.display = 'none';
                 resultsContainer.style.display = 'block';
+                errorElement.style.display = 'none'; // Hata mesajını gizle
             } else {
                 // Yanlış anahtar, hata göster
+                errorElement.textContent = "Geçersiz anahtar. Lütfen tekrar deneyin.";
                 errorElement.style.display = 'block';
             }
         }
