@@ -1,4 +1,5 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,6 +92,9 @@
             color: red;
             margin-top: 10px;
             display: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
         }
     </style>
 </head>
@@ -99,21 +103,13 @@
     <div id="login">
         <input type="text" id="keyInput" placeholder="Anahtarınızı girin">
         <button onclick="checkKey()">Giriş Yap</button>
-        <p id="error">Geçersiz anahtar. Lütfen tekrar deneyin.</p>
+        <p id="error">Erişim reddedildi. Lütfen geçerli bir anahtar girin.</p>
     </div>
 
     <div class="container" id="resultsContainer">
         <h1>Deneme Sonuçları</h1>
+        <div id="keyResults"></div>
 
-        <div class="deneme">
-            <h3>Deneme 1: İsem Yayınları Pist Denemesi Okul Listesi</h3>
-            <a href="https://pdfupload.io/docs/c455a9c1" download="">İndir</a>
-        </div>
-        <div class="deneme">
-            <h3>Deneme 2: DYK 1.Deneme Okul Listesi</h3>
-            <a href="https://pdfupload.io/docs/bf128c43" download="">İndir</a>
-        </div>
-        <!-- Diğer deneme sonuçları buraya eklenir -->
         <div class="footer">
             <p>© 2024 - Deneme Sonuçları</p>
         </div>
@@ -134,20 +130,54 @@
             const errorElement = document.getElementById('error');
             const resultsContainer = document.getElementById('resultsContainer');
             const loginContainer = document.getElementById('login');
+            const keyResultsElement = document.getElementById('keyResults');
 
-            if (inputKey === "") {
-                // Eğer key boşsa hata göster
-                errorElement.textContent = "Geçersiz anahtar. Lütfen tekrar deneyin.";
-                errorElement.style.display = 'block';
-            } else if (validKeys.includes(inputKey)) {
-                // Doğru anahtar, sonuçları göster
+            // Anahtar boşsa veya geçersizse hata mesajı göster
+            if (inputKey === '' || !validKeys.includes(inputKey)) {
+                errorElement.style.display = 'block'; // Hata mesajını göster
+                resultsContainer.style.display = 'none'; // Sonuçları gizle
+            } else {
+                errorElement.style.display = 'none'; // Hata mesajını gizle
                 loginContainer.style.display = 'none';
                 resultsContainer.style.display = 'block';
-                errorElement.style.display = 'none'; // Hata mesajını gizle
-            } else {
-                // Yanlış anahtar, hata göster
-                errorElement.textContent = "Geçersiz anahtar. Lütfen tekrar deneyin.";
-                errorElement.style.display = 'block';
+                fetchResults(); // Sonuçları getir
+            }
+        }
+
+        function fetchResults() {
+            const resultsDataUrl = "https://raw.githubusercontent.com/kerem123216/keremdenemecilik/refs/heads/main/denemeler.txt"; // Deneme verilerinin bulunduğu URL
+            fetch(resultsDataUrl)
+                .then(response => response.text())
+                .then(data => {
+                    processResults(data); // Sonuçları işleme al
+                });
+        }
+
+        function processResults(data) {
+            const keyResultsElement = document.getElementById('keyResults');
+            keyResultsElement.innerHTML = ''; // Önceki sonuçları temizle
+            const lines = data.split('\n');
+
+            lines.forEach(line => {
+                const [title, link] = line.split(':'); // Sadece başlık ve linki al
+                if (title && link) {
+                    const formattedTitle = title.trim();
+                    const formattedLink = link.trim();
+                    
+                    // URL'nin başına // ekle
+                    const completeLink = formattedLink.startsWith('//') ? formattedLink : '//' + formattedLink;
+
+                    const denemeElement = document.createElement('div');
+                    denemeElement.className = 'deneme';
+                    // target="_blank" eklenerek link yeni sekmede açılır
+                    denemeElement.innerHTML = `<h3>${formattedTitle}</h3><a href="${completeLink}" target="_blank">Aç</a>`;
+                    keyResultsElement.appendChild(denemeElement);
+                }
+            });
+
+            // Eğer sonuç yoksa, mesaj gösterme
+            if (keyResultsElement.childElementCount === 0) {
+                keyResultsElement.innerHTML = `<p>Sonuç bulunamadı.</p>`;
             }
         }
     </script>
